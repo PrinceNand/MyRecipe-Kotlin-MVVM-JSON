@@ -1,6 +1,8 @@
 package com.example.myrecipe_kotlin_mvvm_json
 
+import android.telecom.Call.Details
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -25,11 +27,14 @@ import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun RecipeScreen(
-    modifier: Modifier = Modifier
-) {
-    val recipeViewModel: MainViewModel = viewModel()
-    val viewState by recipeViewModel.categoriesState
+    modifier: Modifier = Modifier,
 
+    //navigation from the nav controller click
+    navigateToDetails: (Category)-> Unit,
+
+    // sending data from Recipe App based on the navigation
+    viewState:MainViewModel.RecipeState
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         when {
             viewState.loading -> {
@@ -42,7 +47,7 @@ fun RecipeScreen(
 
             else -> {
                 // Display Categories
-                CategoryScreen(categories = viewState.list)
+                CategoryScreen(categories = viewState.list, navigateToDetails)
             }
         }
     }
@@ -50,12 +55,12 @@ fun RecipeScreen(
 
 // handle a list to show the data and 2 data at a time
 @Composable
-fun CategoryScreen(categories: List<Category>){
+fun CategoryScreen(categories: List<Category>, navigateToDetails: (Category)-> Unit){
     LazyVerticalGrid(GridCells.Fixed(2), modifier =  Modifier.fillMaxSize()) {
 
         // get each item and send to category single item UI
         items(categories){
-            category -> CategoryItems(category)
+            category -> CategoryItems(category, navigateToDetails)
         }
 
     }
@@ -63,8 +68,9 @@ fun CategoryScreen(categories: List<Category>){
 
 // how am item will look like
 @Composable
-fun CategoryItems(category: Category){
-    Column(modifier = Modifier.padding(8.dp).fillMaxSize(),
+fun CategoryItems(category: Category, navigateToDetails: (Category)-> Unit){
+    Column(modifier = Modifier.padding(8.dp).fillMaxSize()
+        .clickable { navigateToDetails(category) },
         horizontalAlignment = Alignment.CenterHorizontally) {
 
         // how image should look
